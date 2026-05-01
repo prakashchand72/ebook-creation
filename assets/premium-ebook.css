@@ -1,0 +1,502 @@
+/* =====================================================================
+   premium-ebook.css
+   Production stylesheet for premium ebook interiors.
+   Works for HTML→PDF (Puppeteer screenshot workflow) and EPUB 3.
+
+   Tokens mirror /assets/design-tokens.json. Edit there, then update here.
+   ===================================================================== */
+
+/* ---------- Tokens ---------- */
+:root {
+  /* Color */
+  --color-ink:    #1A1A1A;
+  --color-paper:  #FAF8F4;
+  --color-accent: #8B2E2E;
+  --color-rule:   #D9D4CB;
+  --color-muted:  #6B6B6B;
+
+  /* Type — pick a system pair if no webfont budget */
+  --font-body:    'EB Garamond', Charter, 'Source Serif 4', Georgia, serif;
+  --font-display: 'Inter', 'Söhne', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+  --font-mono:    'IBM Plex Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  /* Modular scale, 1.2 ratio, 1rem = 17px */
+  --type-xs:       0.694rem;
+  --type-sm:       0.833rem;
+  --type-base:     1rem;
+  --type-md:       1.2rem;
+  --type-lg:       1.44rem;
+  --type-xl:       1.728rem;
+  --type-2xl:      2.074rem;
+  --type-3xl:      2.488rem;
+  --type-display:  3.583rem;
+
+  /* Leading */
+  --lh-tight:   1.2;
+  --lh-snug:    1.35;
+  --lh-normal:  1.6;
+  --lh-relaxed: 1.65;
+
+  /* Spacing — multiples of body line-height */
+  --baseline:  1.6rem;
+  --space-2xs: 0.4rem;
+  --space-xs:  0.8rem;
+  --space-sm:  1.2rem;
+  --space-md:  1.6rem;
+  --space-lg:  2.4rem;
+  --space-xl:  3.2rem;
+  --space-2xl: 4.8rem;
+  --space-3xl: 8rem;
+
+  /* Layout */
+  --column-max: 34rem;
+}
+
+/* ---------- Page (HTML→PDF only; ignored by EPUB readers) ---------- */
+@page {
+  size: 6in 9in;
+  margin: 22mm 18mm 24mm 22mm;        /* T R B L (inner) */
+
+  @top-left  { content: string(book-title);    font-family: var(--font-display); font-size: var(--type-sm); font-variant: small-caps; letter-spacing: 0.08em; color: var(--color-muted); }
+  @top-right { content: string(chapter-title); font-family: var(--font-display); font-size: var(--type-sm); font-variant: small-caps; letter-spacing: 0.08em; color: var(--color-muted); }
+  @bottom-center { content: counter(page); font-family: var(--font-display); font-size: var(--type-sm); color: var(--color-muted); }
+}
+@page :first { @top-left { content: ""; } @top-right { content: ""; } @bottom-center { content: ""; } }
+@page chapter-opener { @top-left { content: ""; } @top-right { content: ""; } }
+
+/* ---------- Reset / base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-size: 17px; }                  /* base for rem math */
+
+body {
+  margin: 0;
+  padding: 0 var(--space-md);
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--type-base);
+  line-height: var(--lh-normal);
+  font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img { max-width: 100%; height: auto; display: block; }
+
+hr { border: 0; height: 1px; background: var(--color-rule); margin: var(--space-xl) auto; width: 6rem; }
+
+a { color: var(--color-accent); text-decoration: none; border-bottom: 0.5px solid currentColor; }
+a:hover, a:focus { color: var(--color-ink); }
+
+/* ---------- Headings (display face, snapped to baseline) ---------- */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--color-ink);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+h1 { font-size: var(--type-3xl);  line-height: var(--lh-tight); }
+h2 { font-size: var(--type-2xl);  line-height: var(--lh-tight); margin: calc(var(--baseline) * 2) 0 var(--baseline); }
+h3 { font-size: var(--type-xl);   line-height: var(--lh-snug);  margin: calc(var(--baseline) * 1.5) 0 var(--baseline); }
+h4 { font-size: var(--type-lg);   line-height: var(--lh-snug);  margin: var(--baseline) 0 calc(var(--baseline) * 0.5); font-variant: small-caps; letter-spacing: 0.06em; }
+h5 { font-size: var(--type-base); line-height: var(--lh-snug);  margin: var(--baseline) 0 calc(var(--baseline) * 0.5); font-variant: small-caps; letter-spacing: 0.08em; color: var(--color-muted); }
+
+/* ---------- Chapter ---------- */
+.chapter {
+  page-break-before: always;
+  page: chapter-opener;
+  string-set: chapter-title attr(data-title);
+  max-width: 42rem;
+  margin-inline: auto;
+  padding-block: var(--space-3xl) var(--space-2xl);
+}
+
+.chapter__opener {
+  text-align: left;
+  margin-bottom: var(--space-2xl);
+}
+
+.chapter__eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--type-sm);
+  font-variant: small-caps;
+  letter-spacing: 0.12em;
+  color: var(--color-muted);
+  margin: 0 0 var(--space-md) 0;
+}
+
+.chapter__number {
+  font-family: var(--font-display);
+  font-size: var(--type-display);
+  line-height: 1;
+  color: var(--color-accent);
+  margin: 0 0 var(--space-sm) 0;
+  letter-spacing: -0.02em;
+}
+
+.chapter__title {
+  font-family: var(--font-display);
+  font-size: var(--type-3xl);
+  font-weight: 500;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.015em;
+  margin: 0 0 var(--space-lg) 0;
+  text-wrap: balance;
+}
+
+.chapter__epigraph {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: var(--type-md);
+  line-height: var(--lh-snug);
+  color: var(--color-muted);
+  max-width: 28rem;
+  margin: 0 0 var(--space-lg) 0;
+}
+.chapter__epigraph cite {
+  display: block;
+  margin-top: var(--space-xs);
+  font-style: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  font-size: var(--type-sm);
+  color: var(--color-muted);
+}
+.chapter__epigraph cite::before { content: "— "; }
+
+.chapter__rule {
+  width: 4rem;
+  height: 1px;
+  background: var(--color-ink);
+  border: 0;
+  margin: 0 0 var(--space-xl) 0;
+}
+
+/* ---------- Body column ---------- */
+.chapter__body {
+  max-width: var(--column-max);
+  margin-inline: auto;
+}
+
+.chapter__body p {
+  margin: 0 0 var(--space-sm) 0;
+  hyphens: auto;
+  hyphenate-limit-chars: 6 3 3;
+  hyphenate-limit-lines: 2;
+  text-wrap: pretty;
+}
+
+/* Narrative mode — first-line indent, no spacing. Add data-mode="narrative" on body. */
+body[data-mode="narrative"] .chapter__body p { text-indent: 1em; margin-bottom: 0; }
+body[data-mode="narrative"] .chapter__body p:first-of-type,
+body[data-mode="narrative"] .chapter__body p.no-indent,
+body[data-mode="narrative"] .chapter__body .lead { text-indent: 0; }
+
+/* Lead paragraph (instructional or narrative) */
+.lead {
+  font-size: var(--type-md);
+  line-height: var(--lh-relaxed);
+  color: var(--color-ink);
+}
+
+/* Drop cap on the first paragraph of the body */
+.chapter__body > p:first-of-type::first-letter,
+.chapter__body > .lead:first-of-type::first-letter {
+  float: left;
+  font-family: var(--font-body);
+  font-size: 4.2em;
+  line-height: 0.88;
+  font-weight: 400;
+  color: var(--color-accent);
+  margin: 0.05em 0.08em -0.05em 0;
+}
+.chapter__body > p:first-of-type::first-line,
+.chapter__body > .lead:first-of-type::first-line {
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- Pull quote ---------- */
+.pullquote {
+  font-family: var(--font-display);
+  font-size: var(--type-md);
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  color: var(--color-ink);
+  border-left: 2px solid var(--color-accent);
+  padding: var(--space-xs) 0 var(--space-xs) var(--space-md);
+  margin: var(--space-xl) 0;
+  max-width: 30rem;
+  text-wrap: balance;
+}
+.pullquote p { margin: 0; }
+.pullquote::before {
+  content: "\201C";
+  display: block;
+  font-family: var(--font-body);
+  font-size: 3em;
+  line-height: 0.4;
+  color: var(--color-accent);
+  opacity: 0.4;
+  margin-bottom: var(--space-2xs);
+}
+
+/* ---------- Block quote ---------- */
+blockquote {
+  margin: var(--space-md) 0;
+  padding: 0 var(--space-md);
+  font-style: italic;
+  color: var(--color-ink);
+  border-left: 1px solid var(--color-rule);
+}
+blockquote cite {
+  display: block;
+  margin-top: var(--space-xs);
+  font-style: normal;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  font-size: var(--type-sm);
+  color: var(--color-muted);
+}
+blockquote cite::before { content: "— "; }
+
+/* ---------- Lists ---------- */
+ul, ol {
+  margin: 0 0 var(--space-md) 0;
+  padding-left: 1.4em;
+}
+ul li, ol li { margin-bottom: var(--space-2xs); padding-left: 0.3em; }
+ul li::marker { color: var(--color-accent); }
+ol { font-feature-settings: "tnum" 1; }
+
+/* ---------- Callouts ---------- */
+.callout {
+  margin: var(--space-md) 0;
+  padding: var(--space-md);
+  border: 0.5px solid var(--color-rule);
+  border-left: 2px solid var(--color-accent);
+  background: transparent;
+  font-size: var(--type-sm);
+  line-height: var(--lh-relaxed);
+}
+.callout__label {
+  margin: 0 0 var(--space-2xs) 0;
+  font-family: var(--font-display);
+  font-size: var(--type-xs);
+  font-variant: small-caps;
+  letter-spacing: 0.12em;
+  color: var(--color-accent);
+  font-weight: 500;
+}
+.callout p:last-child { margin-bottom: 0; }
+.callout--note  { border-left-color: var(--color-muted); }
+.callout--warn  { border-left-color: #B45309; }
+.callout--insight { border-left-color: var(--color-accent); }
+
+/* ---------- Figures ---------- */
+.figure {
+  margin: var(--space-xl) 0;
+}
+.figure img {
+  width: 100%;
+  border-radius: 2px;
+}
+.figure figcaption {
+  margin-top: var(--space-xs);
+  font-family: var(--font-display);
+  font-size: var(--type-xs);
+  line-height: var(--lh-snug);
+  color: var(--color-muted);
+}
+.figure__num {
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  color: var(--color-ink);
+  margin-right: 0.5em;
+  font-weight: 500;
+}
+
+/* ---------- Tables ---------- */
+.table, table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-md) 0;
+  font-size: var(--type-sm);
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
+}
+.table thead th, table thead th {
+  text-align: left;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  color: var(--color-ink);
+  border-bottom: 1px solid var(--color-ink);
+  padding: var(--space-xs) var(--space-sm);
+}
+.table tbody td, table tbody td {
+  border-bottom: 0.5px solid var(--color-rule);
+  padding: var(--space-xs) var(--space-sm);
+  vertical-align: top;
+}
+.table .num, table td.num, table th.num { text-align: right; }
+
+/* ---------- Code (rare in books, but ready) ---------- */
+code, pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  font-feature-settings: "tnum" 1;
+}
+pre {
+  margin: var(--space-md) 0;
+  padding: var(--space-md);
+  background: rgba(0,0,0,0.04);
+  border-left: 2px solid var(--color-muted);
+  overflow-x: auto;
+  line-height: var(--lh-snug);
+}
+
+/* ---------- Section break (within a chapter) ---------- */
+.section-break {
+  text-align: center;
+  margin: var(--space-2xl) 0;
+  font-family: var(--font-display);
+  font-size: var(--type-md);
+  color: var(--color-muted);
+  letter-spacing: 0.6em;
+  text-indent: 0.6em;            /* compensate centered tracking */
+  padding-left: 0;
+}
+.section-break[aria-hidden="true"] { user-select: none; }
+
+/* ---------- Chapter end mark ---------- */
+.chapter__end {
+  display: block;
+  margin: var(--space-2xl) auto 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 0;
+  background: transparent;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231A1A1A'><circle cx='4' cy='12' r='1.5'/><circle cx='12' cy='12' r='1.5'/><circle cx='20' cy='12' r='1.5'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  opacity: 0.7;
+}
+
+/* ---------- Front / back matter ---------- */
+.title-page, .copyright-page, .dedication, .toc, .acknowledgments, .colophon {
+  page-break-before: always;
+  page-break-after: always;
+  max-width: 32rem;
+  margin: var(--space-3xl) auto;
+  text-align: center;
+}
+.title-page__title    { font-family: var(--font-display); font-size: var(--type-display); line-height: var(--lh-tight); margin: 0 0 var(--space-md) 0; letter-spacing: -0.02em; text-wrap: balance; }
+.title-page__subtitle { font-family: var(--font-body); font-style: italic; font-size: var(--type-md); color: var(--color-muted); margin: 0 0 var(--space-2xl) 0; }
+.title-page__author   { font-family: var(--font-display); font-variant: small-caps; letter-spacing: 0.12em; font-size: var(--type-base); }
+
+.copyright-page { text-align: left; max-width: 28rem; font-size: var(--type-xs); color: var(--color-muted); line-height: var(--lh-relaxed); }
+.copyright-page p { margin-bottom: var(--space-xs); }
+
+.dedication { font-family: var(--font-body); font-style: italic; font-size: var(--type-md); color: var(--color-ink); padding-block: var(--space-3xl); }
+
+.toc { text-align: left; }
+.toc h1 { font-variant: small-caps; letter-spacing: 0.12em; font-size: var(--type-md); color: var(--color-muted); margin-bottom: var(--space-xl); }
+.toc ol { list-style: none; padding: 0; counter-reset: toc; }
+.toc li {
+  counter-increment: toc;
+  display: grid;
+  grid-template-columns: 2.5em 1fr auto;
+  align-items: baseline;
+  padding: var(--space-xs) 0;
+  border-bottom: 0.5px dotted var(--color-rule);
+  font-family: var(--font-display);
+}
+.toc li::before { content: counter(toc, decimal-leading-zero); color: var(--color-accent); font-variant: small-caps; letter-spacing: 0.06em; font-size: var(--type-sm); }
+.toc li a { border: 0; color: var(--color-ink); }
+.toc li a:hover { color: var(--color-accent); }
+.toc__page { color: var(--color-muted); font-size: var(--type-sm); font-feature-settings: "tnum" 1; }
+
+.colophon { font-size: var(--type-sm); color: var(--color-muted); font-family: var(--font-body); font-style: italic; max-width: 28rem; }
+
+/* ---------- Footnotes ---------- */
+.footnote-ref, [role="doc-noteref"] {
+  font-size: 0.7em;
+  vertical-align: super;
+  line-height: 1;
+  color: var(--color-accent);
+  border-bottom: 0;
+}
+.footnotes, [role="doc-endnotes"] {
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-rule);
+  font-size: var(--type-xs);
+  line-height: var(--lh-relaxed);
+  color: var(--color-muted);
+}
+.footnotes ol { padding-left: 1.2em; }
+
+/* ---------- Reflowable EPUB tweaks ---------- */
+@media (max-width: 600px) {
+  body { padding: 0 var(--space-sm); font-size: 1rem; }
+  .chapter { padding-block: var(--space-2xl) var(--space-xl); }
+  .chapter__title { font-size: var(--type-2xl); }
+  .chapter__number { font-size: var(--type-3xl); }
+  .pullquote { font-size: var(--type-base); padding-left: var(--space-sm); }
+  .toc li { grid-template-columns: 2em 1fr auto; font-size: var(--type-sm); }
+}
+
+/* ---------- Print refinement ---------- */
+@media print {
+  /* Critical: zero @page margin so chromium does not stack its default
+     margin on top of .page padding. Without this, --print-to-pdf doubles
+     the page count for fixed-size .page layouts. See references/rendering.md. */
+  @page { size: 6in 9in; margin: 0; }
+
+  html, body { background: var(--color-paper); color: var(--color-ink); }
+  .chapter, h1, h2, h3 { break-after: avoid; }
+  p, blockquote, .pullquote, .figure, .callout { break-inside: avoid; }
+  a { color: var(--color-ink); border-bottom: 0; }
+  .footnote-ref { color: var(--color-ink); }
+  body[data-mode="narrative"] .chapter__body p { text-indent: 1em; }
+
+  /* If the project uses the .book / .page card layout for browser preview,
+     collapse it to plain block flow in print so each .page lands on
+     exactly one PDF page. Safe no-op if the project does not use those
+     classes. Override .page { width / height } here if your trim differs. */
+  .book {
+    display: block;
+    background: var(--color-paper);
+    padding: 0;
+    gap: 0;
+    min-height: 0;
+  }
+  .page {
+    box-shadow: none;
+    margin: 0;
+    width: 6in;
+    height: 9in;
+    min-height: 0;
+    max-height: 9in;
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+  }
+  .page:last-of-type { page-break-after: auto; break-after: auto; }
+}
+
+/* ---------- Dark mode (optional — only if cover and design are dark-native) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root[data-allow-dark="true"] {
+    --color-ink:    #E8E4DC;
+    --color-paper:  #161514;
+    --color-rule:   #2C2A27;
+    --color-muted:  #9A958A;
+  }
+}

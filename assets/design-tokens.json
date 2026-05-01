@@ -1,0 +1,75 @@
+{
+  "$schema": "design-tokens",
+  "_comment": "Source of truth for the book's design system. Edit here, then regenerate premium-ebook.css. Five colors, two typefaces, eight spacing steps, eight type sizes. If your book needs more, your design probably needs less.",
+
+  "meta": {
+    "name": "Editorial Default",
+    "version": "1.0.0",
+    "trim_size": "6x9in",
+    "mode": "instructional",
+    "_modes": ["instructional", "narrative"]
+  },
+
+  "color": {
+    "ink":    { "value": "#1A1A1A", "use": "Body text, headings, ink color." },
+    "paper":  { "value": "#FAF8F4", "use": "Page background. Slightly warm white." },
+    "accent": { "value": "#8B2E2E", "use": "Drop caps, pull-quote marks, links. Used 1-3 times per spread max." },
+    "rule":   { "value": "#D9D4CB", "use": "Thin rules, borders, table dividers." },
+    "muted":  { "value": "#6B6B6B", "use": "Captions, folios, secondary text. Must pass 4.5:1 against paper." }
+  },
+
+  "type": {
+    "body":    { "family": "'EB Garamond', Charter, 'Source Serif 4', Georgia, serif", "weight_regular": 400, "weight_italic": 400, "weight_bold": 600 },
+    "display": { "family": "'Inter', 'Söhne', system-ui, -apple-system, 'Helvetica Neue', sans-serif", "weight_regular": 400, "weight_medium": 500, "weight_bold": 600 },
+    "mono":    { "family": "'IBM Plex Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace", "weight_regular": 400 }
+  },
+
+  "scale": {
+    "_ratio": 1.2,
+    "_base_px": 17,
+    "xs":      { "value_rem": 0.694, "use": "Captions, footnotes, folios" },
+    "sm":      { "value_rem": 0.833, "use": "Running heads, eyebrows" },
+    "base":    { "value_rem": 1.000, "use": "Body" },
+    "md":      { "value_rem": 1.200, "use": "Lead paragraph, pull quotes" },
+    "lg":      { "value_rem": 1.440, "use": "h4, sidebar headings" },
+    "xl":      { "value_rem": 1.728, "use": "h3" },
+    "2xl":     { "value_rem": 2.074, "use": "h2 (section break)" },
+    "3xl":     { "value_rem": 2.488, "use": "h1 (chapter title)" },
+    "display": { "value_rem": 3.583, "use": "Chapter number, part opener" }
+  },
+
+  "leading": {
+    "tight":   1.2,
+    "snug":    1.35,
+    "normal":  1.6,
+    "relaxed": 1.65
+  },
+
+  "spacing": {
+    "_baseline_rem": 1.6,
+    "2xs": { "value_rem": 0.4,  "use": "Tight gaps inside components" },
+    "xs":  { "value_rem": 0.8,  "use": "Caption-to-figure, list bullets" },
+    "sm":  { "value_rem": 1.2,  "use": "Paragraph spacing (instructional)" },
+    "md":  { "value_rem": 1.6,  "use": "Default vertical rhythm unit" },
+    "lg":  { "value_rem": 2.4,  "use": "After h3" },
+    "xl":  { "value_rem": 3.2,  "use": "After h2, around pull quotes" },
+    "2xl": { "value_rem": 4.8,  "use": "Section breaks, around full-bleed figures" },
+    "3xl": { "value_rem": 8.0,  "use": "Chapter opener top margin" }
+  },
+
+  "page": {
+    "trim_w_mm": 152.4,
+    "trim_h_mm": 228.6,
+    "margin_top_mm": 22,
+    "margin_outer_mm": 18,
+    "margin_inner_mm": 22,
+    "margin_bottom_mm": 24,
+    "column_max_rem": 34
+  },
+
+  "components": {
+    "drop_cap": { "lines": 3, "size_em": 4.2, "small_caps_first_line": true },
+    "section_break_glyph": "✦ ✦ ✦",
+    "chapter_end_glyph_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='4' cy='12' r='1.5'/><circle cx='12' cy='12' r='1.5'/><circle cx='20' cy='12' r='1.5'/></svg>"
+  }
+}
