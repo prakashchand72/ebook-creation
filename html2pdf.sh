@@ -10,13 +10,28 @@ INPUT=$(realpath "$1")
 OUTPUT=$(realpath "$2")
 
 node -e "
-const p=require('puppeteer'),path=require('path');
-(async()=>{
-  const b=await p.launch({executablePath:'/usr/bin/chromium',args:['--no-sandbox']});
-  const pg=await b.newPage();
-  await pg.goto('file://$INPUT',{waitUntil:'networkidle0'});
-  await pg.pdf({path:'$OUTPUT',format:'A4',printBackground:true,displayHeaderFooter:false,margin:{top:0,bottom:0,left:0,right:0}});
-  await b.close();
+const p = require('puppeteer-core');
+
+(async () => {
+  const browser = await p.launch({
+    executablePath: '/usr/bin/chromium',
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+
+  const page = await browser.newPage();
+
+  await page.goto('file://$INPUT', { waitUntil: 'networkidle0' });
+
+  await page.pdf({
+    path: '$OUTPUT',
+    format: 'A4',
+    printBackground: true,
+    displayHeaderFooter: false,
+    margin: { top: 0, bottom: 0, left: 0, right: 0 }
+  });
+
+  await browser.close();
+
   console.log('Saved: $OUTPUT');
-})()
+})();
 "
